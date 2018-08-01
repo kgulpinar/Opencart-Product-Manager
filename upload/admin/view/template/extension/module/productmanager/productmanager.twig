@@ -1,0 +1,270 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+
+      <div class="pull-right"><a href="{{ add }}" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary"><i class="fa fa-plus"></i></a>
+        <button type="submit" form="form-product" id="button-copy" formaction="{{ copy }}" data-toggle="tooltip" title="{{ button_copy }}" class="btn btn-default"><i class="fa fa-copy"></i></button>
+        <button type="button" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_confirm }}') ? $('#form-product').submit() : false;"><i class="fa fa-trash-o"></i></button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
+        <div class="pull-right" style="margin-top: -4px;">
+          <a {% if excelport %} href="{{ excelport_link }}" {% else %} onclick="alert('{{ excelport_error }}');" {% endif %} target="_blank" data-toggle="tooltip" title="Export using ExcelPort" class="btn btn-primary btn-sm"><i style="font-size:inherit !important;font-weight: inherit !important;" class="fa fa-file-excel-o"></i>&nbsp;&nbsp;{{ text_export }}</a>
+            <a id="tableColumns" data-toggle="tooltip" title="{{ button_togglecolumns }}" class="btn btn-warning btn-sm"><i style="font-size:inherit !important;font-weight: inherit !important;" class="fa fa-table"></i>&nbsp;{{ button_togglecolumns }}</a>            
+            <button data-toggle="tooltip" title="{{ showhide_filter }}" class="btn btn-sm btn-default" onclick="$('.filter-well').toggle(250);"><i class="fa fa-filter"></i> {{ button_filter }}</button>    
+      </div>
+      </div>
+      <div class="panel-body">
+        <div class="well well-sm filter-well">
+          <div class="row">
+
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-name">{{ entry_name }}</label>
+                <input type="text" name="filter_name" value="{{ filter_name ?: '' }}" placeholder="{{ entry_name }}" id="input-name" class="form-control" />
+              </div>
+            </div>
+
+            <div class="col-sm-4">
+              <div class="form-group" id="price-group">
+                <label class="control-label" for="input-price">{{ entry_price }}</label>
+                <div class="input-group">
+                  <div class="input-group-btn">
+                    <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">More than <i class="fa fa-caret-down"></i></button>
+                    <ul class="dropdown-menu">
+                      <li>
+                        <a data-operation=">" class="btn btn-link">More than</a>
+                      </li>
+                      <li>
+                        <a data-operation="<" class="btn btn-link">Less than</a>
+                      </li>
+                      <li>
+                        <a data-operation="><" class="btn btn-link">Between</a>
+                      </li>
+                      <li>
+                        <a data-operation="=" class="btn btn-link">Exactly</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <input type="hidden" name="price_operation" id="price-operation" value="{{ price_operation ?: 'more_than' }}">
+                  <input type="text" name="filter_price" value="{{ filter_price ?: '' }}" placeholder="{{ entry_price }}" id="input-price" class="form-control" />
+                </div>
+                <div id="price-between-wrapper" style="text-align: center; margin-top: 10px; display: none;">
+                  <input type="text" style="display: inline-block; width: 45%;" class="form-control" name="filter_price_from" value="{{ filter_price_from ?: '' }}" placeholder="From"/>
+                  &nbsp;&&nbsp;
+                  <input type="text" style="display: inline-block; width: 45%;" class="form-control" name="filter_price_to" value="{{ filter_price_to ?: '' }}" placeholder="To"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-status">{{ entry_status }}</label>
+                <select name="filter_status" id="input-status" class="form-control">
+                  <option value="*"></option>
+                  {% if filter_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                  {% else %}
+                  <option value="1">{{ text_enabled }}</option>
+                  {% endif %}
+                  {% if filter_status %}
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                  {% else %}
+                    <option value="0">{{ text_disabled }}</option>
+                  {% endif %}
+                </select>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="row">
+
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-model">{{ entry_model }}</label>
+                <input type="text" name="filter_model" value="{{ filter_model ?: '' }}" placeholder="{{ entry_model }}" id="input-model" class="form-control" />
+              </div>
+            </div>
+
+            <div class="col-sm-4">
+              <div class="form-group" id="quantity-group">
+                <label class="control-label" for="input-quantity">{{ entry_quantity }}</label>
+                <div class="input-group">
+                  <div class="input-group-btn">
+                    <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">More than <i class="fa fa-caret-down"></i></button>
+                    <ul class="dropdown-menu">
+                      <li>
+                        <a data-operation=">" class="btn btn-link">More than</a>
+                      </li>
+                      <li>
+                        <a data-operation="<" class="btn btn-link">Less than</a>
+                      </li>
+                      <li>
+                        <a data-operation="><" class="btn btn-link">Between</a>
+                      </li>
+                      <li>
+                        <a data-operation="=" class="btn btn-link">Exactly</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <input type="hidden" name="quantity_operation" id="quantity-operation" value="{{ quantity_operation ?: 'more_than' }}">
+                  <input type="text" name="filter_quantity" value="{{ filter_quantity ?: '' }}" id="input-quantity" placeholder="{{ entry_quantity }}" class="form-control" />
+                </div>
+                <div id="quantity-between-wrapper" style="text-align: center; margin-top: 10px; display: none;">
+                  <input type="text" style="display: inline-block; width: 45%;" class="form-control" name="filter_quantity_from" value="{{ filter_quantity_from ?: '' }}" placeholder="From" />
+                  &nbsp;&&nbsp;
+                  <input type="text" style="display: inline-block; width: 45%;" class="form-control" name="filter_quantity_to" value="{{ filter_quantity_to ?: '' }}" placeholder="To" />
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-limit">{{ entry_limit }}</label>
+                <input type="text" name="filter_limit" value="{{ filter_limit ?: '' }}" placeholder="{{ entry_limit_placeholder }}" id="input-limit" class="form-control" />
+              </div>
+            </div>
+
+          </div>
+
+
+          <div class="row">
+
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-manufacturer">{{ entry_manufacturer }}</label>
+                <input type="text" name="filter_manufacturer" value="{{ filter_manufacturer ?: '' }}" placeholder="{{ entry_manufacturer }}" id="input-manufacturer" class="form-control" />
+                <input type="hidden" name="filter_manufacturer_id" value="0" id="filter_manufacturer_id" class="form-control" />
+              </div>            
+            </div>
+
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-category">{{ entry_category }}</label>
+                <input type="text" name="filter_category_name" value="{{ filter_category ?: '' }}" placeholder="{{ entry_category }}" id="input-category-name" class="form-control" />
+                 <input type="hidden" name="filter_category" value="{{ filter_category ?: '' }}" placeholder="{{ entry_category }}" id="input-category" class="form-control" />
+              </div>
+            </div>
+
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-sku">{{ entry_sku }}</label>
+                <input type="text" name="filter_sku" value="{{ filter_sku ?: '' }}" placeholder="{{ entry_sku }}" id="input-sku" class="form-control" />
+              </div>
+            </div>
+
+          </div>
+          <div class="row">
+            <div class="col-sm-offset-8 col-sm-4"><button type="button" id="button-filter" style="margin-top: 10px;" class="btn btn-primary pull-right"><i class="fa fa-search"></i> {{ button_filter }}</button></div>
+          </div>
+        </div>
+        <div id="popoverHiddenContent" style="display: none;">
+           <div> 
+            <div class="col-xs-6" style="margin:0px;padding:0 15px 0 0;">  
+                  {% for key,value in tableData %}                      
+                      <div class="checkbox">
+                          <label>
+                            <input type="checkbox" class="tableColumnToggle" onclick="updateColumns(this);" data-key="{{ key }}" /> {{ value.name }}
+                          </label>
+                      </div>
+                      {% if loop.inex==18 %}</div><div class="col-xs-6" style="margin:0px;padding:0px;"> {% endif %}
+                  {% endfor %}
+              </div>
+              <div class="clearfix"></div>
+              <em>{{ asterisk_warning }}</em>
+           </div>
+        </div>  
+        <div id="popoverHiddenTitle" style="display: none">
+           <strong>{{ button_togglecolumns }}:</strong>
+        </div>
+        <div id="productsWrapper">
+          &nbsp;
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- Modal Image Bulk Uploading -->
+{{ include(modulePath ~ '/productmanager_image_bulk.twig') }}
+<!-- Modal Product Quick Edit -->
+{{ include(modulePath ~ '/productmanager_quick_edit.twig') }}
+
+<div id="module-edit-custom-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="Edit Product" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-body">
+            <iframe id="module-edit-custom-iframe" frameborder="0" allowtransparency="true" seamless></iframe>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+  </div>
+</div>
+<div id="module-edit-custom-bulk-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="Edit Product" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-body">
+            <iframe id="module-edit-custom-bulk-iframe" frameborder="0" allowtransparency="true" seamless></iframe>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+  </div>
+</div>
+<style type="text/css">
+.popover-medium {
+  max-width: 600px;
+  min-width: 320px;
+  width: auto;
+}
+</style>
+<script type="text/javascript"><!--
+var isMobileDevice = {{ isMobileDeviceJson }};
+var files;
+var user_token = '{{ user_token }}';
+var tax_classes = {{ tax_classes_json }};
+var weight_classes = {{ weight_classes_json }};
+var length_classes = {{ length_classes_json }};
+var stock_statuses = {{ stock_statuses_json }};
+var manufacturers = {{ manufacturers_json }};
+var lang_images = {{ lang_images_json }};
+
+var bulk_atleast2 = '{{ bulk_atleast2 }}';
+var bulk_zip_error = '{{ bulk_zip_error }}';
+var bulk_image_result = '{{ bulk_image_result }}';
+var confirm_bulk = '{{ confirm_bulk }}';
+
+var text_enabled = '{{ text_enabled }}';
+var text_disabled = '{{ text_disabled }}';
+var text_yes = '{{ text_yes }}';
+var text_no = '{{ text_no }}';
+
+var text_selected_categories = '{{ text_selected_categories }}';
+var text_replace_selected = '{{ text_replace_selected }}';
+var text_delete_selected = '{{ text_delete_selected }}';
+</script>
+</div>
+{{ footer }}

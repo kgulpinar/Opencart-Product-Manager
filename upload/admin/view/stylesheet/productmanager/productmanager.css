@@ -1,0 +1,39 @@
+.module-edit {
+  cursor: pointer;
+}
+
+#module-edit-modal .modal-body,  #module-edit-custom-modal .modal-body{
+  background: url('preloader.gif') no-repeat center center;
+}
+
+#module-edit-iframe, #module-edit-custom-iframe {
+  width: 100%;
+  height: 650px;
+  overflow: auto;
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  -ms-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+}
+
+#module-edit-iframe.loading, #module-edit-custom-iframe.loading {
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+  filter: alpha(opacity=0);
+  -moz-opacity: 0;
+  -webkit-opacity: 0;
+  -khtml-opacity: 0;
+  opacity: 0;
+}
+
+#module-edit-modal .modal-lg,  #module-edit-custom-modal .modal-lg{ 
+  width: 1000px;
+}
+
+.editable ul {
+  margin: 0px;	
+}
+
+.well-category {
+  margin-bottom: 0px;	
+}

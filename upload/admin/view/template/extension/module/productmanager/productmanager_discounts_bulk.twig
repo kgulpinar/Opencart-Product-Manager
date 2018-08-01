@@ -1,0 +1,290 @@
+{{ header }}
+<div id="content">
+  <div class="page-header">
+      <div class="container-fluid">
+        <div class="pull-right">
+          <button form="form-product" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary btn-submit"><i class="fa fa-save"></i></button></div>
+        <h1>{{ column_discounts }}</h1>
+      </div>
+    </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+      <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+      {% endif %}
+      <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ column_discounts }}</h3>
+        </div>
+        <div class="panel-body">
+          <form method="post" enctype="multipart/form-data" id="form-product" class="form-horizontal">    
+            <div class="text-center">
+              <label for="ptype" style="display: block;">Choose the discount bulk edit type</label>
+              <select name="ptype" class="form-control" style="margin: 0 auto 10px; display: block; width: 30%;">
+                <option value="replace">{{ discount_bulk_replace }}</option>
+                <option value="add_on_top">{{ discount_bulk_add_on_top }}</option>
+              </select>
+              <div class="text-center replace-info type-info" style="margin-bottom: 20px; padding: 0 20%;">
+                <i class="fa fa-info-circle"></i>{{ discount_replace_helper }}
+              </div>
+              <div class="text-center add-on-top-info type-info" style="margin-bottom: 20px; display: none; padding: 0 20%;">
+                <i class="fa fa-info-circle"></i>{{ discount_add_on_top_helper }}
+              </div>
+            </div>          
+            <div class="tab-content">
+              <div class="tab-pane active" id="tab-discount">
+                <div class="table-responsive">
+                  <table id="discount" class="table table-bordered table-hover" style="background-color: #f9f9f9">
+                    <thead>
+                      <tr>
+                        <td class="text-left">{{ entry_customer_group }}</td>
+                        <td class="text-left">{{ entry_quantity }} <span style="color: #F23B3B;">*</span></td>
+                        <td class="text-right">{{ entry_priority }}</td>
+                        <td class="text-right">{{ entry_price }} <span style="color: #F23B3B;">*</span></td>
+                        <td class="text-left">{{ entry_date_start }}</td>
+                        <td class="text-left">{{ entry_date_end }}</td>
+                        <td class="text-right">{{ entry_actions }}</td>
+                      </tr>
+                    </thead>
+                    <tbody id="main-body">
+                      {% set discount_row=0 %}
+
+                      <tr id="discount-row{{ discount_row }}">
+                        <td class="text-right" style="width: 17%">
+                          <select name="discounts[{{ discount_row }}][customer_group_id]" class="form-control">
+                            <option value="0">{{ all_customer_groups }}</option>
+                            {% for customer_group in customer_groups %}
+                              <option value="{{ customer_group.customer_group_id }}">{{ customer_group.name }}</option>
+                            {% endfor %}
+                          </select>
+                        </td>
+
+                        <td class="text-left" style="width: 17%;">
+                          <input type="text" name="discounts[{{ discount_row }}][quantity]" required pattern="[0-9]+" title="Digits only" placeholder="{{ entry_quantity }}" class="form-control" />
+                        </td>
+
+                        <td class="text-right" style="width: 8%;">
+                          <input type="text" name="discounts[{{ discount_row }}][priority]" pattern="[0-9]+" title="Digits only" placeholder="{{ entry_priority }}" class="form-control" />
+                        </td>
+
+                        <td class="text-right" style="width: 20%;">
+                            <div class="input-group">
+                                <div class="input-group-btn" data-toggle="tooltip" data-original-title="Choose operation for Price edit">
+                                    <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">
+                                        <i class="fa fa-caret-down"></i>
+                                    </button>
+                                    <input type="hidden" name="discounts[{{ discount_row }}][price_operation]" value=""/>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a data="operation_add" class="btn btn-link">{{ operation_add }}</a>
+                                        </li>
+                                        <li>
+                                            <a data="operation_subtract" class="btn btn-link">{{ operation_subtract }}</a>
+                                        </li>
+                                        <li>
+                                            <a data="operation_multiply" class="btn btn-link">{{ operation_multiply }}</a>
+                                        </li>
+                                        <li>
+                                            <a data="operation_divide" class="btn btn-link">{{ operation_divide }}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <input type="text" name="discounts[{{ discount_row }}][price]" required pattern="[0-9]+" title="Digits only" placeholder="{{ entry_price }}" class="form-control" />
+
+                                <div class="input-group-btn" data-toggle="tooltip" data-original-title="Choose units for Price edit">
+                                    <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">
+                                        <i class="fa fa-caret-down"></i>
+                                    </button>
+                                    <ul class="dropdown-menu pull-right">
+                                        <li>
+                                            <a id="type_percent" class="btn btn-link" style="text-align: left">%</a>
+                                        </li>
+                                        <li>
+                                            <a id="type_fixed" class="btn btn-link" style="text-align: left">{{ currency }}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <input type="hidden" name="discounts[{{ discount_row }}][price_operation_type]" value=""/> 
+                        </td>
+
+                        <td class="text-left" style="width: 20%;">
+                          <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-calendar-o"></i></span>
+                            <input type="text" name="discounts[{{ discount_row }}][date_start]" placeholder="{{ entry_date_start }}" class="form-control date-time-picker" />
+                          </div>
+                        </td>
+
+                        <td class="text-left" style="width: 20%;">
+                          <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-calendar-o"></i></span>
+                            <input type="text" name="discounts[{{ discount_row }}][date_end]" placeholder="{{ entry_date_end }}" class="form-control date-time-picker" />
+                          </div>
+                        </td>
+                        <td class="text-left"><button type="button" onclick="$('#discount-row{{ discount_row }}').remove();" data-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td>
+                      </tr>
+
+                    </tbody>
+                      <tr>
+                        <td colspan="6"></td>
+                        <td class="text-left"><button type="button" onclick="addDiscount();" data-toggle="tooltip" title="{{ button_discount_add }}" class="btn btn-primary"><i class="fa fa-plus-circle"></i></button></td>
+                      </tr>
+                    <td style="vertical-align: top">  
+                      <strong>Customer groups:</strong><br /><br />
+                      - Choose the customer group/s you'd like the discounts to apply to
+                    </td>
+                    <td style="vertical-align: top;">
+                      <strong>Quantity:</strong><br /><br />
+                      - Choose the quantity customers have to reach in order to receive the discount
+                    </td>
+                    <td style="vertical-align: top">  
+                      <strong>Priority manipulations:</strong><br /><br />
+            - Type the desired value in the textbox (0 by default)
+                    </td>
+                    <td style="vertical-align: top">  
+                      <strong>Price manipulations:</strong><br /><br />
+                      - Choose the operation type from the left arrow<br />
+                      - Choose the units type from the right arrow<br />
+                      - Type the desired value in the textbox
+                    </td>
+                    <td colspan="2" style="text-align: center; vertical-align: top">  
+                      <strong>Date manipulations:</strong><br /><br />          
+                      - Click in the input field to view the date picker<br /><br />
+                      <strong> Leave empty to disregard dates</strong>
+                    </td>
+                    <td></td>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+  </div>
+</div>
+
+<script type="text/javascript"><!--
+$(window).on('load', function() {
+  var pid = window.parent.getSelectedProducts();
+  
+  $('<input />').attr('type', 'hidden')
+   .attr('name', "product_ids")
+   .attr('value', pid.toString())
+   .appendTo($('form#form-product'));
+});
+
+$(document).ready(function() {
+  $('select[name=\'ptype\']').on('change', function() {
+    if ($(this).prop('value') == 'add_on_top') {
+      $('.type-info').hide();
+      $('.add-on-top-info').show();
+    } else {
+      $('.type-info').hide();
+      $('.replace-info').show();
+    }
+  });
+
+  $(document).on('click', 'a[data^=operation_]', function() {
+    var operation  = $(this).attr('data').match(/[a-z]*$/i).toString();   
+    var ul = $(this).parent().parent();
+    var button = ul.parent().find('button');
+    $(this).parent().parent().parent().parent().find('input[type=\'hidden\']').val(operation);
+
+    switch(operation) {
+      case 'multiply': operation = '*';      break;
+      case 'add'     : operation = 'plus';   break;
+      case 'subtract': operation = 'minus';  break;
+      case 'divide'  : operation = '/';        break;
+      default: operation = 'caret-down';
+    }
+
+    if (operation.indexOf('*') == -1 && operation.indexOf('/') == -1) {
+      ul.siblings().html('<i></i>');
+      ul.parent().find('i').html('').removeClass().addClass('fa fa-' + operation);
+    }
+    else {
+      ul.parent().find('i').removeClass().addClass('fa');
+      ul.siblings().html(operation);
+    }
+
+    if (button.hasClass('btn-danger')) {
+      button.removeClass('btn-danger');
+    }
+  });
+
+  // Type of change dropdown
+  $(document).on('click', 'a[id^=\'type_\']', function() {
+    var type  = $(this).attr('id').match(/[a-z]*$/i).toString();  
+    var ul = $(this).parent().parent();
+    var button = ul.parent().find('button');
+    $(this).parent().parent().parent().parent().parent().find("input[name$='operation_type]']").val(type);
+
+    switch(type) {
+      case 'percent': type = '%'; break;
+      case 'fixed'  : type = "{{ currency }}";  break;
+      default: type = 'caret-down';
+    }
+
+    if (button.hasClass('btn-danger')) {
+      button.removeClass('btn-danger');
+    }
+
+    ul.siblings().html(type);
+  });
+
+  $('.date-time-picker').datetimepicker({
+    icons: {
+                time: "fa fa-clock-o",
+                date: "fa fa-calendar",
+                up: "fa fa-arrow-up",
+                down: "fa fa-arrow-down"
+        },
+        pickTime: false,
+        dateFormat: 'yy/mm/dd'
+  });
+})
+
+$('header').hide();
+
+var discount_row = 1;
+
+function addDiscount() {
+  html  = '<tr id="discount-row' + discount_row + '">';
+    html += '  <td class="text-left" style="width: 17%;"><select name="discounts[' + discount_row + '][customer_group_id]" class="form-control">';
+    html += '    <option value="0">--Apply to all--</option>';
+    {% for customer_group in customer_groups %}
+    html += '    <option value="{{ customer_group.customer_group_id }}">{{ customer_group.name|escape }}</option>';
+    {% endfor %}
+    html += '  </select></td>';
+    html += '  <td class="text-right" style="width: 17%;"><input type="text" name="discounts[' + discount_row + '][quantity]" value="" placeholder="{{ entry_quantity }}" class="form-control" /></td>';
+  html += '  <td class="text-right" style="width: 8%;"><input type="text" name="discounts[' + discount_row + '][priority]" value="" placeholder="{{ entry_priority }}" class="form-control" /></td>';
+
+  html += '<td class="text-right" style="width: 18%;"><div class="input-group"><div class="input-group-btn" data-toggle="tooltip" data-original-title="Choose operation for Price edit"><button data-toggle="dropdown" class="btn btn-default dropdown-toggle"><i class="fa fa-caret-down"></i></button><input type="hidden" name="discounts[' + discount_row + '][price_operation]" value=""/><ul class="dropdown-menu"><li><a data="operation_add" class="btn btn-link">{{ operation_add }}</a></li><li><a data="operation_subtract" class="btn btn-link">{{ operation_subtract }}</a></li><li><a data="operation_multiply" class="btn btn-link">{{ operation_multiply }}</a></li><li><a data="operation_divide" class="btn btn-link">{{ operation_divide }}</a></li></ul></div><input type="text" name="discounts[' + discount_row + '][price]" required pattern="[0-9]+" title="Digits only" placeholder="{{ entry_price }}" class="form-control" /><div class="input-group-btn" data-toggle="tooltip" data-original-title="Choose units for Price edit"><button data-toggle="dropdown" class="btn btn-default dropdown-toggle"><i class="fa fa-caret-down"></i></button><ul class="dropdown-menu pull-right"><li><a id="type_percent" class="btn btn-link" style="text-align: left">%</a></li><li><a id="type_fixed" class="btn btn-link" style="text-align: left">{{ currency }}</a></li></ul></div></div><input type="hidden" name="discounts[' + discount_row + '][price_operation_type]" value=""/></td>';
+
+  html += '<td class="text-right" style="width: 20%;"><div class="input-group" data="date-helper"><span class="input-group-addon"><i class="fa fa-calendar-o"></i></span><input type="text" name="discounts[' + discount_row + '][date_start]" placeholder="{{ entry_date_start }}" class="form-control date-time-picker" /></div></td>';
+
+  html += '<td class="text-right" style="width: 20%;"><div class="input-group" data="date-helper"><span class="input-group-addon"><i class="fa fa-calendar-o"></i></span><input type="text" name="discounts[' + discount_row + '][date_end]" placeholder="{{ entry_date_end }}" class="form-control date-time-picker" /></div></td>';
+
+  html += '  <td class="text-left"><button type="button" onclick="$(\'#discount-row' + discount_row + '\').remove();" data-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td>';
+  html += '</tr>';
+
+  $('#main-body').append(html);
+
+  $('.date-time-picker').datetimepicker({
+    icons: {
+                time: "fa fa-clock-o",
+                date: "fa fa-calendar",
+                up: "fa fa-arrow-up",
+                down: "fa fa-arrow-down"
+        },
+        pickTime: false,
+        dateFormat: 'yy/mm/dd'
+  });
+
+  $('[data-toggle=\'tooltip\']').tooltip();
+
+  discount_row++;
+}
+</script>

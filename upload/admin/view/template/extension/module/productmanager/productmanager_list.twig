@@ -1,0 +1,221 @@
+<form action="{{ delete }}" method="post" enctype="multipart/form-data" id="form-product">
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-productManager">
+          <thead>
+            <tr class="sorting">
+              <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" /></td>
+              {% for key,tData in tableData %}
+              	{% if (not tData.sort or not tData.url) and key != 'image' %}
+					<td class="text-center" data-toggle="true" data-key="{{ key }}">{{ tData.name }}
+                   		{% if tData.bulk %}
+                      <div style="float:right;" data-toggle="tooltip" title="{{ bulk_edit }}&nbsp;&nbsp;'{{ tData.name }}'" ><i class="fa fa-pencil-square bulk-edit" data-key="{{ key }}"></i></div>
+                        {% endif %}
+                    </td>
+                {% elseif key == 'image' %}    
+                  	<td class="text-center" data-toggle="true" data-key="{{ key }}">{{ tData.name }}
+                      <div style="float:right;" data-toggle="tooltip" title="{{ bulk_edit }}&nbsp;&nbsp;'{{ tData.name }}'" ><i data-toggle="modal" data-target="#bulk-image-upload" class="fa fa-pencil-square"></i></div>
+                    </td>
+                {% else %}
+                    <td class="text-left" data-toggle="true" data-key="{{ key }}">
+                        {% if sort == tData.sort %}
+                        <a href="{{ tData.url }}" class="{{ order|lower }}">{{ tData.name }}</a>
+                        {% else %}
+                        <a href="{{ tData.url }}">{{ tData.name }}</a>
+                        {% endif %}
+                        {% if tData.bulk %}
+                        <div style="float:right;" data-toggle="tooltip" title="{{ bulk_edit }}&nbsp;&nbsp;'{{ tData.name }}'" ><i class="fa fa-pencil-square bulk-edit" data-key="{{ key }}"></i></div>
+                        {% endif %}
+                    </td>
+                {% endif %}
+              {% endfor %}    
+              <td class="text-right">{{ column_action }}</td>
+            </tr>
+          </thead>
+          <tbody>
+            {% if products %}
+                {% for product in products %}
+                <tr class="edit-tr" data-id="{{ product.product_id }}">
+                    <td class="text-center">
+                    {% if product.product_id in selected %}
+                        <input type="checkbox" name="selected[]" value="{{ product.product_id }}" checked="checked" />
+                    {% else %}
+                        <input type="checkbox" name="selected[]" value="{{ product.product_id }}" />
+                    {% endif %}
+                    </td>
+                    {% for key,value in tableData %}
+                        {% if key == 'image' %}
+                            <td class="text-center" data-key="{{ key }}">
+                                {% if product.image %}
+                                    <a href="" id="thumb-image{{ product.product_id }}" data-toggle="image-manager" class="img-thumbnail"><img data-placeholder="{{ placeholder }}" width="40" height="40" src="{{ product.image }}" alt="{{ product.name }}"/></a>
+                                {% else %}
+                                    <span class="img-thumbnail list"><i class="fa fa-camera fa-2x"></i></span>
+                                {% endif %}
+                            </td>
+                        {% elseif key == 'quantity' %}
+                            <td class="text-right edit-td" data-key="{{ key }}">
+                                {% if product.quantity <= 0 %}
+                                    <span class="editable {{ product.product_id }} {{ key }} label label-warning">{{ product.quantity }}</span>
+                                {% elseif product.quantity <= 5 %}
+                                    <span class="editable {{ product.product_id }} {{ key }} label label-danger">{{ product.quantity }}</span>
+                                {% else %}
+                                    <span class="editable {{ product.product_id }} {{ key }} label label-success">{{ product.quantity }}</span>
+                                {% endif %}
+                            </td>
+                        {% elseif key == 'price' %}
+                            <td class="text-left edit-td" data-key="{{ key }}">
+                                {% if product.special %}
+                                    <span class="editable {{ product.product_id }} {{ key }}" style="text-decoration: line-through;">{{ product.price }}</span><br/>
+                                    <div class="text-danger">{{ product.special }}</div>
+                                {% else %}
+                                    <span class="editable {{ product.product_id }} {{ key }}">{{ product.price }}</span>
+                                {% endif %}
+                            </td>
+                        {% elseif key == 'specials' %}
+                            <td class="text-left" data-key="{{ key }}">
+                            {% if product.specials_count %}
+                                {% if product.specials_count == 1 %}
+                                <span class="popup-specials editable {{ product.product_id }} {{ key }}"><a href="#" onclick="javascript:void(0)">{{ text_special_cnt|format(product.specials_count) }}</a></span>
+                                {% else %}
+                                <span class="popup-specials editable {{ product.product_id }} {{ key }}"><a href="#" onclick="javascript:void(0)">{{ text_special_cnt_plu|format(product.specials_count) }}</a></span>
+                                {% endif %}
+                            {% else %}
+                                <span class="popup-specials editable {{ product.product_id }} {{ key }}"><a href="#" onclick="javascript:void(0)">{{ text_notset }}</a></span>
+                            {% endif %}
+                            </td>
+                        {% elseif key == 'discounts' %}
+                            <td class="text-left" data-key="{{ key }}">
+                            {% if product.discounts_count %}
+                                {% if product.discounts_count == 1 %}
+                                <span class="popup-discounts editable {{ product.product_id }} {{ key }}"><a href="#" onclick="javascript:void(0)">
+                                {{ text_disc_cnt|format(product.discounts_count) }}</a></span>
+                                {% else %}
+                                <span class="popup-discounts editable {{ product.product_id }} {{ key }}"><a href="#" onclick="javascript:void(0)">
+                                {{ text_disc_cnt_plu|format(product.discounts_count) }}</a></span>
+                                {% endif %}
+                            {% else %}
+                                <span class="popup-discounts editable {{ product.product_id }} {{ key }}"><a href="#" onclick="javascript:void(0)">
+                                {{ text_notset }}</a></span>
+                            {% endif %}
+                            </td>
+                        {% elseif key == 'attributes' %}
+                            <td class="text-left" data-key="{{ key }}">
+                            {% if product.attributes_count %}
+                                {% if product.attributes_count == 1 %}
+                                <span class="popup-attributes editable {{ product.product_id }} {{ key }}"><a href="#" onclick="javascript:void(0)">{{ text_attr_cnt|format(product.attributes_count) }}</a></span>
+                                {% else %}
+                                <span class="popup-attributes editable {{ product.product_id }} {{ key }}"><a href="#" onclick="javascript:void(0)">{{ text_attr_cnt_plu|format(product.attributes_count) }}</a></span>
+                                {% endif %}
+                            {% else %}
+                                <span class="popup-attributes editable {{ product.product_id }} {{ key }}"><a href="#" onclick="javascript:void(0)">{{ text_notset }}</a></span>
+                            {% endif %}
+                            </td>
+                        {% elseif key == 'options' %}
+                            <td class="text-left" data-key="{{ key }}">
+                            {% if product.options_count %}
+                                {% if product.options_count == 1 %}
+                                <span class="popup-options editable {{ product.product_id }} {{ key }}"><a href="#" onclick="javascript:void(0)">{{ text_opts_cnt|format(product.options_count) }}</a></span>
+                                {% else %}
+                                <span class="popup-options editable {{ product.product_id }} {{ key }}"><a href="#" onclick="javascript:void(0)">{{ text_opts_cnt_plu|format(product.options_count) }}</a></span>
+                                {% endif %}
+                            {% else %}
+                                <span class="popup-options editable {{ product.product_id }} {{ key }}"><a href="#" onclick="javascript:void(0)">{{ text_notset }}</a></span>
+                            {% endif %}
+                            </td>
+                        {% elseif key == 'status' %}
+                            <td class="text-left edit-td" data-key="{{ key }}"><span data-status="{{ product.status_code }}" class="editable {{ product.product_id }} {{ key }}">{{ product[key] }}</span></td> 
+                        {% elseif key == 'subtract' %}
+                            <td class="text-left edit-td" data-key="{{ key }}"><span data-subtract="{{ product.subtract_code }}" class="editable {{ product.product_id }} {{ key }}">{{ product[key] }}</span></td> 
+                        {% elseif key == 'shipping' %}
+                            <td class="text-left edit-td" data-key="{{ key }}"><span data-shipping="{{ product.shipping_code }}" class="editable {{ product.product_id }} {{ key }}">{{ product[key] }}</span></td>
+                        {% elseif key == 'tax_class' %}
+                            <td class="text-left edit-td" data-key="{{ key }}"><span data-tax_class="{{ product.tax_class_code }}" class="editable {{ product.product_id }} {{ key }}">{{ product[key] ?: '--- None ---' }}</span></td> 
+                        {% elseif key == 'stock_status' %}
+                            <td class="text-left edit-td" data-key="{{ key }}"><span data-stock_status="{{ product.stock_status_code }}" class="editable {{ product.product_id }} {{ key }}">{{ product[key] }}</span></td> 
+                        {% elseif key == 'weight_class' %}
+                            <td class="text-left edit-td" data-key="{{ key }}"><span data-weight_class="{{ product.weight_class_code }}" class="editable {{ product.product_id }} {{ key }}">{{ product[key] }}</span></td>  
+                        {% elseif key == 'shipping' %}
+                            <td class="text-left edit-td" data-key="{{ key }}"><span data-shipping="{{ product.shipping_code }}" class="editable {{ product.product_id }} {{ key }}">{{ product[key] }}</span></td>
+                        {% elseif key == 'manufacturer' %}
+                            <td class="text-left edit-td" data-key="{{ key }}"><span data-manufacturer="{{ product.manufacturer_code }}" class="editable {{ product.product_id }} {{ key }}">{{ product[key] ?: '--- None ---' }}</span></td>  
+                        {% elseif key == 'category' %}
+                            <td class="text-left edit-td" data-key="{{ key }}"><span class="editable {{ product.product_id }} {{ key }}">
+                            	{% if product[key]|length > 0 %}
+                                  <ul>
+                                  {% for category in product[key] %}
+                                      <li>{{ category.name }}</li>
+                                  {% endfor %}
+                                  </ul> 
+                              {% else %}
+                                <center>- - -</center>
+                              {% endif %}
+                            </span></td> 
+                        {% elseif key == 'filter' %}
+                              <td class="text-left edit-td" data-key="{{ key }}"><span class="editable {{ product.product_id }} {{ key }}">
+                                {% if product[key]|length > 0 %}
+                                    <ul>
+                                    {% for filter in product[key] %}
+                                        <li>{{ filter.name }}</li>
+                                    {% endfor %}
+                                    </ul> 
+                                {% else %}
+                                    <center>- - -</center>
+                                {% endif %}
+                            </span></td> 
+                        {% else %}
+                            <td class="text-left edit-td" data-key="{{ key }}"><span class="editable {{ product.product_id }} {{ key }}">{{ product[key] }}</span></td> 
+                        {% endif %}
+                    {% endfor %}  
+                    <td class="text-right">
+                        <a href="{{ product.quick_view }}" target="_black" data-toggle="tooltip" title="{{ quick_view }}" class="btn btn-default"><i class="fa fa-eye"></i></a>
+                    	<a href="{{ product.edit }}" target="_black" data-toggle="tooltip" title="{{ quick_edit }}" class="btn btn-warning module-edit"><i class="fa fa-pencil-square-o"></i></a>
+                        <a href="{{ product.edit }}" target="_black" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
+                        <a href="{{ product.orders }}" target="_black" data-toggle="tooltip" title="{{ button_orders }}" class="btn btn-info view-orders"><i class="fa fa-list-alt"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                  	<td class="text-center" colspan="35">{{ text_no_results }}</td>
+                </tr>
+            {% endif %}
+          </tbody>
+        </table>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-6 text-left pagination">{{ pagination }}</div>
+          <div class="col-sm-6 text-right">{{ results }}</div>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+$(document).ready(function(){
+	 $('#productsWrapper .pagination a').click(function(e){
+			e.preventDefault();
+			$.ajax({
+				url: this.href,
+				type: 'get',
+				dataType: 'html',
+				success: function(data) {				
+					$("#productsWrapper").html(data);
+					updateTable();
+				}
+			});
+	 });		 
+
+	$('#productsWrapper .sorting a').click(function(e){
+		e.preventDefault();
+		$.ajax({
+			url: this.href,
+			type: 'get',
+			dataType: 'html',
+			success: function(data) {				
+				$("#productsWrapper").html(data);
+				updateTable();
+			}
+		});
+	});
+	
+	editable();
+});
+</script>

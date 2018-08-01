@@ -1,0 +1,46 @@
+{{ header }}
+<div class="page-header">
+    <div class="container-fluid">
+      <h1>{{ heading_title }}</h1>
+    </div>
+</div>
+
+{% if orders %}
+<div class="table-responsive">
+	<table class="table table-bordered table-hover">
+	  <thead>
+	    <tr>
+	      <td class="text-right" style="width: 8%">{{ text_order_id }}</td>
+	      <td class="text-left">{{ text_customer }}</td>
+	      <td class="text-left">{{ column_status }}</td>
+	      <td class="text-right">{{ column_total }}</td>
+	      <td class="text-left">{{ column_date_added }}</td>
+	      <td class="text-right">{{ column_action }}</td>
+	    </tr>
+	  </thead>
+
+	  <tbody>
+	    {% for order in orders %}	
+	    <tr>
+	      <td class="text-right" style="text-align: center">{{ order.order_id }}</td>
+        <td class="text-left">{{ order.firstname }} {{ order.lastname }}</td>
+	      <td class="text-left">{{ order.order_status }}</td>
+	      <td class="text-right">{{ order.total }}</td>
+	      <td class="text-left">{{ order.date_added }}</td>
+	      <td class="text-right">
+	      	<a href="{{ order.info_link }}" target="_blank" data-toggle="tooltip" title="" class="btn btn-info" data-original-title="View"><i class="fa fa-eye"></i></a>
+	      </td>
+	    </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+</div>
+{% else %}
+<h1 style="text-align: center"> There are no orders associated with this product </h1>
+{% endif %} 
+
+<script type="text/javascript ">
+	$(window).load(function() {
+		$('#header').hide();
+	})
+</script>
